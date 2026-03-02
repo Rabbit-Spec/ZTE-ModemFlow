@@ -2,7 +2,7 @@
 # ==========================================
 # ZTE-ModemFlow 一键部署脚本
 # 作者：https://github.com/Rabbit-Spec
-# 版本：1.0.2
+# 版本：1.0.3
 # 日期：2026.03.02
 # ==========================================
 
@@ -11,9 +11,9 @@ set -e
 # --- 颜色定义 ---
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
-YELLOW='\133[1;33m'
+YELLOW='\033[1;33m'  
 RED='\033[0;31m'
-NC='\033[0m' # 重置颜色
+NC='\033[0m'         
 
 # 定义基础 URL
 RAW_URL="https://raw.githubusercontent.com/Rabbit-Spec/ZTE-ModemFlow/main"
