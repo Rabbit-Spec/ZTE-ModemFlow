@@ -1,15 +1,14 @@
 #!/bin/sh
 # ==========================================
-# 脚本：中兴 ZX279133 光猫数据查询脚本
-# 功能：中兴光猫自动化数据采集与监控工具。
-# 作者：https://github.com/Rabbit-Spec
-# 版本：1.0.0
+# 脚本：中兴 ZX279133 光猫数据查询与时间同步脚本
+# 功能：中兴光猫自动化数据采集、监控及时间强制同步工具。
+# 版本：1.1.0
 # ==========================================
 
 # ---------------------------------------------------------
 # 1. 环境自检查
 # ---------------------------------------------------------
-echo ">> [1/5] 正在检查环境依赖..."
+echo ">> [1/6] 正在检查环境依赖..."
 LOCK_FILE="/tmp/zte_env_checked"
 if [ ! -f "$LOCK_FILE" ]; then
     if ! command -v expect &> /dev/null; then
@@ -19,31 +18,40 @@ if [ ! -f "$LOCK_FILE" ]; then
     touch "$LOCK_FILE"
 fi
 
-# ---------------------------------------------------------
-# 2. 确认光猫Telnet登陆信息
-# ---------------------------------------------------------
 IP="192.168.1.1"
 USER="root"
 PASS="Zte521"
 
 # ---------------------------------------------------------
+# 2. 准备同步数据
+# ---------------------------------------------------------
+echo ">> [2/6] 正在准备同步时间..."
+# 获取当前北京时间用于同步 (格式：2026-03-02 15:45:00)
+SYNC_TIME=$(TZ='Asia/Shanghai' date "+%Y-%m-%d %H:%M:%S")
+echo "   本地时间: $SYNC_TIME"
+
+# ---------------------------------------------------------
 # 3. 光猫物理延迟探测
 # ---------------------------------------------------------
-echo ">> [2/5] 正在测试光猫物理延迟..."
+echo ">> [3/6] 正在测试光猫物理延迟..."
 PING_LATENCY=$(ping -c 1 $IP | grep 'time=' | awk -F'time=' '{print $2}' | awk '{print $1}')
 [ -z "$PING_LATENCY" ] && PING_LATENCY=0
 echo "   结果: $PING_LATENCY ms"
 
 # ---------------------------------------------------------
-# 4. 抓取原始快照 (单次会话)
+# 4. 抓取快照并同步时间 (单次会话)
 # ---------------------------------------------------------
-echo ">> [3/5] 正在抓取 /proc 原始快照..."
+echo ">> [4/6] 正在抓取数据并下发同步指令..."
 RAW_RESULT=$(expect -c "
 set timeout 15
 spawn telnet $IP
 expect \"Login:\" { send \"$USER\r\" }
 expect \"Password:\" { send \"$PASS\r\" }
 expect \"/ # \"
+# 同步系统时间指令
+send \"date -s \\\"$SYNC_TIME\\\"\r\"
+expect \"/ # \"
+# 抓取状态数据
 send \"cat /proc/uptime; cat /proc/cpuusage; cat /proc/tempsensor; cat /proc/net/dev; cat /proc/meminfo\r\"
 expect \"/ # \"
 send \"exit\r\"
@@ -51,10 +59,9 @@ expect eof
 " 2>/dev/null)
 
 # ---------------------------------------------------------
-# 5. 【核心修复】数据拼图逻辑：合并被切断的行
+# 5. 数据解析逻辑
 # ---------------------------------------------------------
-echo ">> [4/5] 正在进行数据拼图与变量解析..."
-# 逻辑：如果一行以空格+数字开头，说明它是上一行的延续，将其拼接到上一行 
+echo ">> [5/6] 正在进行数据拼图与变量解析..."
 RESULT=$(echo "$RAW_RESULT" | tr -d '\r' | awk '{
     if (NR > 1 && /^[[:space:]]+[0-9]/) {
         printf " %s", $0
@@ -64,7 +71,7 @@ RESULT=$(echo "$RAW_RESULT" | tr -d '\r' | awk '{
     }
 } END { printf "\n" }')
 
-# 变量初始化兜底
+# 变量初始化
 UPTIME_RAW=0; CPU=0; TEMP=0; PON_ERRORS=0; PON_RX=0; PON_TX=0; MEM_AVAIL=0; ETH_RX=0; ETH_TX=0
 
 # 解析基础数据
@@ -90,27 +97,24 @@ MEM_AVAIL=$(echo "$RESULT" | grep "MemAvailable:" | head -n 1 | awk '{print $2}'
 LAST_UPDATE=$(TZ='Asia/Shanghai' date "+%H:%M:%S")
 
 # ---------------------------------------------------------
-# 6. 生成 JSON 导出
+# 6. 生成 JSON 与看板显示
 # ---------------------------------------------------------
-echo ">> [5/5] 正在导出 JSON 数据..."
+echo ">> [6/6] 正在更新看板数据..."
 JSON_FILE="/config/shell/zte_data.json"
 
-printf '{"last_update": "%s", "uptime": %s, "cpu": %s, "temp": %s, "ping": %s, "pon_rx": %s, "pon_tx": %s, "pon_err": %s, "mem_total": %s, "mem_avail": %s, "eth_rx": %s, "eth_tx": %s}' \
+printf '{"last_update": "%s", "uptime": %s, "cpu": %s, "temp": %s, "ping": %s, "pon_rx": %s, "pon_tx": %s, "pon_err": %s, "mem_total": %s, "mem_avail": %s, "eth_rx": %s, "eth_tx": %s, "sync_time": "%s"}' \
 "$LAST_UPDATE" "${UPTIME_RAW:-0}" "${CPU:-0}" "${TEMP:-0}" "${PING_LATENCY:-0}" \
 "${PON_RX:-0}" "${PON_TX:-0}" "${PON_ERRORS:-0}" \
-"${MEM_TOTAL:-524288}" "${MEM_AVAIL:-0}" "${ETH_RX:-0}" "${ETH_TX:-0}" > "$JSON_FILE"
+"${MEM_TOTAL:-524288}" "${MEM_AVAIL:-0}" "${ETH_RX:-0}" "${ETH_TX:-0}" "$SYNC_TIME" > "$JSON_FILE"
 
 chmod 666 "$JSON_FILE"
 
-# ---------------------------------------------------------
-# 7. 全数据看板
-# ---------------------------------------------------------
 echo "------------------------------------------------------------"
-echo " ✅ 数据解析成功！光猫数据看板 ($LAST_UPDATE)"
+echo " ✅ 监控与同步完成！光猫看板 ($LAST_UPDATE)"
 echo "------------------------------------------------------------"
+echo " [时间状态] 同步至: $SYNC_TIME"
 echo " [核心硬件] 温度: ${TEMP:-0} °C | CPU: ${CPU:-0} % | 内存可用: ${MEM_AVAIL:-0}"
-echo " [链路质量] 延迟: ${PING_LATENCY:-0} ms | 物理错误(FEC): ${PON_ERRORS:-0} pkts"
+echo " [链路质量] 延迟: ${PING_LATENCY:-0} ms | FEC错误: ${PON_ERRORS:-0} pkts"
 echo " [PON 网络] 接收: ${PON_RX:-0} 包 | 发送: ${PON_TX:-0} 包"
-echo " [LAN 端口] 接收: ${ETH_RX:-0} 包 | 发送: ${ETH_TX:-0} 包"
-echo " [系统运行] 累计时长: ${UPTIME_RAW:-0} 秒"
+echo " [系统运行] 运行时间: $(expr ${UPTIME_RAW:-0} / 3600) 小时"
 echo "------------------------------------------------------------"
