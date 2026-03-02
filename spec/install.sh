@@ -2,7 +2,7 @@
 # ==========================================
 # ZTE-ModemFlow 一键部署脚本
 # 作者：https://github.com/Rabbit-Spec
-# 版本：1.0.4
+# 版本：1.0.5
 # 日期：2026.03.02
 # ==========================================
 
@@ -77,7 +77,7 @@ echo -e " ${YELLOW}2.${NC} 安装命令 ${GREEN}wget -O - https://get.hacs.xyz |
 echo -e ""
 
 echo -e " ${YELLOW}3.${NC} 在 HACS 中下载以下前端插件:"
-echo -e "    ├─ ${GREEN}Mushroom (--Better-Sliders)${NC}"
+echo -e "    ├─ ${GREEN}Mushroom${NC}"
 echo -e "    ├─ ${GREEN}Mini-Graph-Card${NC}"
 echo -e "    └─ ${GREEN}Card-mod${NC}"
 echo -e ""
