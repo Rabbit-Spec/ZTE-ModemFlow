@@ -2,7 +2,7 @@
 # ==========================================
 # 脚本：中兴 ZX279133 光猫数据查询脚本
 # 功能：中兴光猫自动化数据采集与监控工具。
-# 版本：1.2.4
+# 版本：1.2.5
 # 作者：https://github.com/Rabbit-Spec
 # ==========================================
 
@@ -27,7 +27,6 @@ IP="192.168.1.1"
 USER="root"
 PASS="Zte521"
 JSON_FILE="/config/shell/zte_data.json"
-# 强制使用北京时间记录当前时间
 SYNC_TIME=$(TZ='Asia/Shanghai' date "+%Y-%m-%d %H:%M:%S")
 
 # ---------------------------------------------------------
@@ -60,12 +59,13 @@ expect eof
 echo ">> [5/6] 正在进行数据拼图与智能判断对时..."
 RESULT=$(echo "$RAW_RESULT" | tr -d '\r')
 
-# --- 系统基础信息 ---
-UPTIME_RAW=$(echo "$RESULT" | grep -oE "[0-9]+\.[0-9]+" | head -n 1 | cut -d. -f1)
+# --- 系统运行时间 ---
+UPTIME_RAW=$(echo "$RESULT" | grep -oE "[0-9]+\.[0-9]+[[:space:]]+[0-9]+\.[0-9]+" | head -n 1 | awk '{print $1}' | cut -d. -f1)
 [ -z "$UPTIME_RAW" ] && UPTIME_RAW=0
 
-CPU=$(echo "$RESULT" | grep -iE "average|usage" | grep -oE "[0-9.]+" | head -n 1)
-TEMP=$(echo "$RESULT" | grep -iE "temper|temp" | grep -oE "[0-9]{2,3}" | tail -n 1)
+# --- 【彻底修复】CPU与温度 (屏蔽cat命令回显) ---
+CPU=$(echo "$RESULT" | grep -iE "average|usage" | grep -v "cat" | grep -oE "[0-9.]+" | head -n 1)
+TEMP=$(echo "$RESULT" | grep -iE "temper|temp" | grep -v "cat" | grep -oE "[0-9]{2,3}" | head -n 1)
 
 # --- 内存处理 ---
 MEM_TOTAL=$(echo "$RESULT" | grep "MemTotal:" | awk '{print $2}' | tr -cd '0-9')
