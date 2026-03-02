@@ -1,0 +1,49 @@
+# ==========================================
+# 主题：Mushroom Glass主题
+# 作用：配套基于 Mushroom 的高斯模糊主题
+# 作者：https://github.com/Rabbit-Spec
+# 版本：1.0.0
+# ==========================================
+Mushroom Glass:
+  # --- 基础形状与阴影 (全局通用) ---
+  ha-card-border-radius: "16px"
+  ha-card-border-width: "2px"
+
+  # --- Card-mod 注入：高斯模糊底座 ---
+  card-mod-theme: "Mushroom Glass"
+  card-mod-card: |
+    /* 1. 给所有卡片套上冰霜玻璃 (删除了惹祸的 color 指令) */
+    ha-card {
+      backdrop-filter: blur(10px) saturate(120%);
+      -webkit-backdrop-filter: blur(24px) saturate(120%);
+    }
+
+  # --- 模式适配：明暗双轨独立调参 ---
+  modes:
+    light:
+      ha-card-background: "rgba(255, 255, 255, 0.2)"
+      ha-card-border-color: "rgba(255, 255, 255, 1)" 
+      ha-card-box-shadow: "0 16px 32px rgba(0, 0, 50, 0.12)"
+      
+      # 浅色模式
+      primary-text-color: "#212121"
+      rgb-primary-text-color: "33, 33, 33"        # Mushroom 专属识别变量
+      secondary-text-color: "#757575"
+      rgb-secondary-text-color: "117, 117, 117"   # Mushroom 专属识别变量
+
+    dark:
+      ha-card-background: "rgba(15, 15, 15, 0.45)"      
+      ha-card-border-color: "rgba(255, 255, 255, 0.12)" 
+      ha-card-box-shadow: "0 2px 32px rgba(0, 0, 0, 0.2)" 
+
+      # 深色模式
+      primary-text-color: "#FFFFFF"
+      rgb-primary-text-color: "255, 255, 255"     # 给 Mushroom 注入纯白灵魂
+      secondary-text-color: "#A0A0A0"
+      rgb-secondary-text-color: "160, 160, 160"   # 给 Mushroom 注入高级灰
+      
+      state-icon-color: "#A0A0A0"
+      sidebar-icon-color: "#A0A0A0"       
+      sidebar-text-color: "#A0A0A0"       
+      sidebar-selected-icon-color: "#FFFFFF" 
+      sidebar-selected-text-color: "#FFFFFF"
