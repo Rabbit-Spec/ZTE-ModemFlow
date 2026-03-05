@@ -116,8 +116,8 @@ fi
 echo -e "${GREEN}======================================================${NC}"
 echo -e "             🎉 ${YELLOW}ZTE-ModemFlow 部署成功！${NC}"
 echo -e ""
-echo -e "        🧑‍💻   作者: ${BLUE}https://github.com/Rabbit-Spec${NC}"
-echo -e "        🏷️   版本: ${BLUE}v1.1.3${NC}"
+echo -e "        🧑‍💻  作者: ${BLUE}https://github.com/Rabbit-Spec${NC}"
+echo -e "        🏷️  版本: ${BLUE}v1.1.3${NC}"
 echo -e "${GREEN}======================================================${NC}"
 echo -e "${YELLOW}📌 后续操作指南：${NC}\n"
 
