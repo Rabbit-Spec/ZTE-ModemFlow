@@ -2,7 +2,7 @@
 # ==========================================
 # ZTE-ModemFlow 一键部署脚本
 # 作者：https://github.com/Rabbit-Spec
-# 版本：1.1.3
+# 版本：1.1.4
 # 日期：2026.03.05
 # ==========================================
 
@@ -114,10 +114,10 @@ fi
 
 # --- 结束提示 ---
 echo -e "${GREEN}======================================================${NC}"
-echo -e "             🎉 ${YELLOW}ZTE-ModemFlow 部署成功！${NC}"
+echo -e "             🎉  ${YELLOW}ZTE-ModemFlow 部署成功！${NC}"
 echo -e ""
-echo -e "        🧑‍💻  作者: ${BLUE}https://github.com/Rabbit-Spec${NC}"
-echo -e "        🏷️  版本: ${BLUE}v1.1.3${NC}"
+echo -e "      🧑‍💻  作者: ${BLUE}https://github.com/Rabbit-Spec${NC}"
+echo -e "      🏷️  版本: ${BLUE}v1.1.4${NC}"
 echo -e "${GREEN}======================================================${NC}"
 echo -e "${YELLOW}📌 后续操作指南：${NC}\n"
 
@@ -141,6 +141,6 @@ echo -e " ${YELLOW}[5]${NC} 导入仪表盘 UI"
 echo -e "     新建仪表盘面板 -> 切换至代码编辑器模式 -> 粘贴以下链接中的全部内容:"
 echo -e "     └─ ${BLUE}https://raw.githubusercontent.com/Rabbit-Spec/ZTE-ModemFlow/main/dashboards/dashboard.yaml${NC}\n"
 
-echo -e " ${YELLOW}💡 温馨提示：${NC}"
+echo -e " ${YELLOW}💡  温馨提示：${NC}"
 echo -e "     记得给你的仪表盘界面选一张壁纸，整体效果更佳！"
 echo -e "${GREEN}======================================================${NC}"
