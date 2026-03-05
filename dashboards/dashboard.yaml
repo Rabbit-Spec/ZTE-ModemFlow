@@ -2,7 +2,7 @@
 # 卡片：中兴 ZX279133 光猫数据展示卡片
 # 功能：自动化数据采集与监控
 # 作者：https://github.com/Rabbit-Spec
-# 版本：1.0.5
+# 版本：1.1.6
 # 日期：2026.03.05
 # ==========================================
 
@@ -21,7 +21,7 @@ cards:
         }
     elements:
       - type: state-label
-        entity: sun.sun
+        entity: sensor.zte_modem_info
         style:
           left: 13px
           top: 63px
@@ -42,7 +42,7 @@ cards:
               display: block;
             }
       - type: state-label
-        entity: sun.sun
+        entity: sensor.zte_modem_info
         style:
           left: 17px
           top: 120px
