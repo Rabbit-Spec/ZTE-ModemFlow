@@ -45,7 +45,7 @@ curl -sSL --connect-timeout 10 --retry 3 -o /config/shell/zte_monitor.sh "${RAW_
 }
 
 log "正在下载重启脚本: reboot_modem.sh..."
-curl -sSL --connect-timeout 10 --retry 3 -o /config/shell/reboot_modem.sh "${RAW_URL}/scripts/zte_monitor.sh" || {
+curl -sSL --connect-timeout 10 --retry 3 -o /config/shell/reboot_modem.sh "${RAW_URL}/scripts/reboot_modem.sh" || {
     error "下载 reboot_modem.sh 失败！请检查网络连接，或确认 GitHub 上的文件路径是否正确。"
     exit 1
 }
