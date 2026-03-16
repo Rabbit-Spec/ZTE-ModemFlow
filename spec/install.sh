@@ -2,7 +2,7 @@
 # ==========================================
 # ZTE-ModemFlow 一键部署脚本
 # 作者：https://github.com/Rabbit-Spec
-# 版本：1.1.4
+# 版本：1.1.5
 # 日期：2026.03.12
 # ==========================================
 
@@ -113,13 +113,13 @@ if ! grep -q "packages: !include_dir_named packages" "$CONFIG_FILE"; then
             error "尝试修改 configuration.yaml 时发生错误！(sed 注入失败)"
             exit 1
         }
-        success "已成功将 Packages 挂载至现有 homeassistant 节点。"
+        success "已成功将 Packages 挂载至现有 HomeAssistant 节点。"
     else
         echo -e "homeassistant:\n  packages: !include_dir_named packages\n$(cat $CONFIG_FILE)" > "$CONFIG_FILE" || {
             error "尝试写入 configuration.yaml 时发生错误！(echo 写入失败)"
             exit 1
         }
-        success "已自动创建 homeassistant 节点并完成挂载。"
+        success "已自动创建 HomeAssistant 节点并完成挂载。"
     fi
 else
     success "检测到 Packages 已配置，跳过注入步骤。"
@@ -130,7 +130,7 @@ echo -e "${GREEN}======================================================${NC}"
 echo -e "             🎉 ${YELLOW}ZTE-ModemFlow 部署成功！${NC}"
 echo -e ""
 echo -e "        🧑‍💻  作者: ${BLUE}https://github.com/Rabbit-Spec${NC}"
-echo -e "        🏷️  版本: ${BLUE}v1.1.4${NC}"
+echo -e "        🏷️  版本: ${BLUE}v1.1.5${NC}"
 echo -e "${GREEN}======================================================${NC}"
 echo -e "${YELLOW}📌 后续操作指南：${NC}\n"
 
