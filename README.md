@@ -49,7 +49,7 @@
 
 ```bash
 # 使用脚本一键安装
-curl -sSL https://raw.githubusercontent.com/Rabbit-Spec/ZTE-ModemFlow/main/spec/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/Rabbit-Spec/ZTE-ModemFlow/main/spec/install.sh | sh
 ```
 > **注意**：脚本默认 Telnet 登录信息为 `root` / `Zte521`，如不同请自行修改。
 
