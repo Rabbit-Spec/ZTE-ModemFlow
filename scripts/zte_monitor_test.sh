@@ -3,7 +3,7 @@
 # 脚本：中兴 ZX279133 光猫数据查询脚本
 # 功能：中兴光猫自动化数据采集与监控工具
 # 作者：https://github.com/Rabbit-Spec
-# 版本：1.2.7
+# 版本：1.2.8
 # 日期：2026.03.16
 # ==========================================
 
@@ -93,7 +93,7 @@ ETH_TX=$(echo "$ETH_LINE" | awk '{print $11}' | tr -cd '0-9')
 # --- 接收光功率解析 ---
 OPTICAL_RX_RAW=$(echo "$RESULT" | grep "optical RXPower=" | awk -F'=' '{print $2}' | tr -cd '0-9')
 if [ -n "$OPTICAL_RX_RAW" ] && [ "$OPTICAL_RX_RAW" -gt 0 ]; then
-    OPTICAL_RX=$(awk -v raw="$OPTICAL_RX_RAW" 'BEGIN {printf "%.2f", 10 * log(raw / 10000) / log(10)}')
+    OPTICAL_RX=$(awk -v raw="$OPTICAL_RX_RAW" 'BEGIN {printf "%.2f", (10 * log(raw / 10000) / log(10)) + 0.5}')
 else
     OPTICAL_RX=0
 fi
@@ -108,7 +108,7 @@ if [ "$UPTIME_RAW" -gt 0 ] && [ "$UPTIME_RAW" -lt 600 ]; then
     expect \"Login:\" { send \"$USER\r\" }
     expect \"Password:\" { send \"$PASS\r\" }
     expect \"/ # \"
-    send \"date -s \\\"$SYNC_TIME\\\"\r\"
+    send \"export TZ='CST-8'; date -s \\\"$SYNC_TIME\\\"\r\"
     expect \"/ # \"
     send \"exit\r\"
     expect eof
