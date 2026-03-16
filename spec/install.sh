@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 # ==========================================
 # ZTE-ModemFlow 一键部署脚本
 # 作者：https://github.com/Rabbit-Spec
-# 版本：1.1.5
-# 日期：2026.03.12
+# 版本：1.3.1
+# 日期：2026.03.16
 # ==========================================
 
 set -e 
@@ -105,18 +105,24 @@ fi
 
 if ! grep -q "packages: !include_dir_named packages" "$CONFIG_FILE"; then
     warn "检测到尚未挂载 Packages，正在执行自动注入..."
-    # 备份配置文件防误杀
     cp "$CONFIG_FILE" "${CONFIG_FILE}.bak" || warn "无法创建配置文件备份，将继续强制注入。"
     
-    if grep -q "homeassistant:" "$CONFIG_FILE"; then
-        sed -i '/homeassistant:/a \  packages: !include_dir_named packages' "$CONFIG_FILE" || {
-            error "尝试修改 configuration.yaml 时发生错误！(sed 注入失败)"
+    if grep -q "^homeassistant:" "$CONFIG_FILE"; then
+        # 使用 awk 替代 sed，兼容所有 Linux 发行版，并采用原子写入防损坏
+        awk '/^homeassistant:/{print;print "  packages: !include_dir_named packages";next}1' "$CONFIG_FILE" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE" || {
+            error "尝试修改 configuration.yaml 时发生错误！(awk 注入失败)"
+            mv "${CONFIG_FILE}.bak" "$CONFIG_FILE" 2>/dev/null # 失败回滚
             exit 1
         }
         success "已成功将 Packages 挂载至现有 HomeAssistant 节点。"
     else
-        echo -e "homeassistant:\n  packages: !include_dir_named packages\n$(cat $CONFIG_FILE)" > "$CONFIG_FILE" || {
+        # 纯净的 echo 写入方案，安全可靠
+        echo "homeassistant:" > "${CONFIG_FILE}.tmp"
+        echo "  packages: !include_dir_named packages" >> "${CONFIG_FILE}.tmp"
+        cat "$CONFIG_FILE" >> "${CONFIG_FILE}.tmp"
+        mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE" || {
             error "尝试写入 configuration.yaml 时发生错误！(echo 写入失败)"
+            mv "${CONFIG_FILE}.bak" "$CONFIG_FILE" 2>/dev/null # 失败回滚
             exit 1
         }
         success "已自动创建 HomeAssistant 节点并完成挂载。"
@@ -130,7 +136,7 @@ echo -e "${GREEN}======================================================${NC}"
 echo -e "             🎉 ${YELLOW}ZTE-ModemFlow 部署成功！${NC}"
 echo -e ""
 echo -e "        🧑‍💻  作者: ${BLUE}https://github.com/Rabbit-Spec${NC}"
-echo -e "        🏷️  版本: ${BLUE}v1.1.5${NC}"
+echo -e "        🏷️  版本: ${BLUE}v1.3.1${NC}"
 echo -e "${GREEN}======================================================${NC}"
 echo -e "${YELLOW}📌 后续操作指南：${NC}\n"
 

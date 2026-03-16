@@ -2,7 +2,8 @@
 # 配置包：ZTE-ModemFlow 一体化配置
 # 功能：集成指令、传感器、模板与自动化
 # 作者：https://github.com/Rabbit-Spec
-# 版本：1.0.1
+# 版本：1.3.1
+# 日期：2026.03.16
 # ==========================================
 
 # 1. 定义底层脚本指令
@@ -35,73 +36,73 @@ command_line:
         - temp
         - pon_rx
         - pon_tx
-        - pon_uptime
         - mem_total
         - mem_avail
         - pon_err
         - eth_rx
         - eth_tx
         - ping
+        - optical_rx
 
 # 将主传感器的属性拆解为独立的实体，方便在大屏上画图监控
 template:
   - sensor:
-      - name: "光猫 PON 接收包"
+      - name: "zte_pon_rx"
         unit_of_measurement: "pkts"
         state: "{{ state_attr('sensor.zte_modem_info', 'pon_rx') }}"
         icon: mdi:download-network-outline
         state_class: total_increasing
 
-      - name: "光猫 PON 发送包"
+      - name: "zte_pon_tx"
         unit_of_measurement: "pkts"
         state: "{{ state_attr('sensor.zte_modem_info', 'pon_tx') }}"
         icon: mdi:upload-network-outline
         state_class: total_increasing
 
-      - name: "光猫连续运行"
+      - name: "zte_uptime"
         icon: mdi:clock-outline
         state: >
-          {% set uptime = state_attr('sensor.zte_modem_info', 'pon_uptime') | int(0) %}
+          {% set uptime = state_attr('sensor.zte_modem_info', 'uptime') | int(0) %}
           {% if uptime > 0 %}
             {% set days = uptime // 86400 %}
             {% set hours = (uptime % 86400) // 3600 %}
-            {{ days }}天 {{ hours }}小时
+            {% set minutes = (uptime % 3600) // 60 %}
+            {{ days }} 天 {{ hours }} 时 {{ minutes }} 分
           {% else %}
             不可用
           {% endif %}
 
-      - name: "光猫 CPU 负载"
+      - name: "zte_cpu_load"
         unit_of_measurement: "%"
         state: "{{ state_attr('sensor.zte_modem_info', 'cpu') }}"
         icon: mdi:cpu-64-bit
         state_class: measurement
 
-      - name: "光猫 PON 物理错误" 
+      - name: "zte_pon_err" 
         unit_of_measurement: "pkts"
         icon: mdi:shield-check
         state_class: measurement
         state: "{{ state_attr('sensor.zte_modem_info', 'pon_err') | default(0) }}"
 
-      - name: "光猫链路延迟"
+      - name: "zte_ping"
         unit_of_measurement: "ms"
         state: "{{ state_attr('sensor.zte_modem_info', 'ping') | default(0) }}"
         icon: mdi:pulse
         state_class: measurement
 
-      - name: "光猫 LAN 接收包"
+      - name: "zte_lan_rx"
         unit_of_measurement: "pkts"
         icon: mdi:lan-connect
         state_class: total_increasing
         state: "{{ state_attr('sensor.zte_modem_info', 'eth_rx') }}"
 
-      - name: "光猫 LAN 发送包"
+      - name: "zte_lan_tx"
         unit_of_measurement: "pkts"
         icon: mdi:lan-disconnect
         state_class: total_increasing
         state: "{{ state_attr('sensor.zte_modem_info', 'eth_tx') }}"
-        
-      # --- 新增的内存实体计算逻辑 ---
-      - name: "光猫内存占用"
+
+      - name: "zte_mem_usage"
         unit_of_measurement: "%"
         icon: mdi:memory
         state_class: measurement
@@ -113,6 +114,12 @@ template:
           {% else %}
             0
           {% endif %}
+
+      - name: "zte_optical_rx"
+        unit_of_measurement: "dBm"
+        icon: mdi:laser-pointer
+        state_class: measurement
+        state: "{{ state_attr('sensor.zte_modem_info', 'optical_rx') | default(0) }}"
 
 # 4. 自动化：定时同步数据
 automation:
